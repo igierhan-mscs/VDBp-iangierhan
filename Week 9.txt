@@ -1,0 +1,51 @@
+Ian Gierhan
+COMC 1714 - Week 9
+10-23-2021
+
+#1
+SELECT Building.Building_Name, Apartment.Apt_Number, Person.First_Name + Person.Last_Name AS [Full Name]
+FROM     Building INNER JOIN
+                  Apartment ON Building.Building_ID = Apartment.Building_ID INNER JOIN
+                  Person ON Apartment.Manager_ID = Person.Person_ID
+ORDER BY Person.Last_Name, Person.First_Name
+
+#2
+SELECT Person.First_Name + Person.Last_Name AS [Full Name], Address.Street_1 + Address.Street_2 + Apartment.Apt_Number AS Address, Address.City + Address.State + Address.Zip AS [Address 2]
+FROM     Person INNER JOIN
+                  Address ON Person.Address_ID = Address.Address_ID INNER JOIN
+                  Apartment ON Person.Person_ID = Apartment.Tenant_ID
+ORDER BY Person.Last_Name, Person.First_Name
+
+#3
+SELECT Building.Building_Name, Apartment.Apt_Number, Apartment.Sq_Ft * 0.9 + 100 * Apartment.Baths AS estRent
+FROM     Building INNER JOIN
+                  Apartment ON Building.Building_ID = Apartment.Building_ID
+
+#4
+SELECT Building.Building_Name, Apartment.Apt_Number, Apartment.Sq_Ft * 0.9 + 100 * Apartment.Baths AS estRent, Apartment.Rent, CAST(ROUND((Apartment.Sq_Ft * 0.9 + 100 * Apartment.Baths - Apartment.Rent) / Apartment.Rent * 100, 2) 
+                  AS decimal(10, 2)) AS [% of difference]
+FROM     Building INNER JOIN
+                  Apartment ON Building.Building_ID = Apartment.Building_ID
+
+#5
+SELECT Invoice.InvoiceID, Invoice.InvoiceDate, Receipt.ReceiptAmount, SUM(LineItem.Qty * Product.Price) AS InvoiceTotal, SUM(LineItem.Qty * Product.Price) - Receipt.ReceiptAmount AS Difference
+FROM     Invoice INNER JOIN
+                  Receipt ON Invoice.InvoiceID = Receipt.Invoice_ID INNER JOIN
+                  LineItem ON Invoice.InvoiceID = LineItem.Invoice_ID INNER JOIN
+                  Product ON LineItem.Product_ID = Product.Product_ID
+GROUP BY Invoice.InvoiceID, Invoice.InvoiceDate, Receipt.ReceiptAmount
+HAVING (Invoice.InvoiceID = 1)
+
+#6
+SELECT DATEADD(week, 4, Invoice.InvoiceDate) AS [Last Invoice + 4 weeks], Person.Last_Name, Person.First_Name
+FROM     Invoice INNER JOIN
+                  Apartment ON Invoice.Apartment_ID = Apartment.Apartment_ID INNER JOIN
+                  Person ON Apartment.Tenant_ID = Person.Person_ID
+ORDER BY Person.Last_Name, Person.First_Name
+
+#7
+SELECT Person.First_Name + Person.Last_Name AS [Full Name], DATEDIFF(day, Invoice.InvoiceDate, Invoice.DueDate) AS [Days to Pay]
+FROM     Invoice INNER JOIN
+                  Apartment ON Invoice.Apartment_ID = Apartment.Apartment_ID INNER JOIN
+                  Person ON Apartment.Tenant_ID = Person.Person_ID
+ORDER BY Person.Last_Name, Person.First_Name
